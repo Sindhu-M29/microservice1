@@ -83,4 +83,4 @@ else:
 
 
 if __name__ == '__main__':
-    app.run(host= 'localhost', port=5003)  
+    app.run(host= '54.87.165.151', port=5003)  
