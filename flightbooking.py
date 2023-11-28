@@ -8,85 +8,44 @@ app = Flask(__name__)
 API1_BASE_URL = os.environ.get('API1_BASE_URL')
 API2_BASE_URL = os.environ.get('API2_BASE_URL')
 
-print(API1_BASE_URL)
-print(API2_BASE_URL)
+# API1_BASE_URL = "http://127.0.0.1:5000"
+# API2_BASE_URL = "http://127.0.0.1:5001"
+
 
 @app.route('/getAvailableFlights', methods=['GET'])
 def get_available_flights():
-    # Make a request to the /getAvailableFlights endpoint of API1
     api1_response = requests.get(f'{API1_BASE_URL}/getAvailableFlights')
-
-    # Return the response from API1
     return jsonify(api1_response.json()), api1_response.status_code
 
 @app.route('/getTotalAmount', methods=['GET'])
 def get_total_amount():
-    # Get the flight number and number of seats from query parameters
-    flight_number = request.args.get('flight_number')
-    num_seats = int(request.args.get('num_seats', 0))  # Default to 0 if not provided
-
-    if not flight_number:
-        return jsonify({'error': 'Flight number is required'}), 400
-
-    if not num_seats:
-        return jsonify({'error': 'Number of seats is required'}), 400
-
-    # Make a request to the /getTotalAmount endpoint of API2
+    # Forward the request to API2 without additional logic
     api2_response = requests.get(f'{API2_BASE_URL}/getTotalAmount', params=request.args)
-
-    if api2_response.status_code == 200:
-        # Check if the flight number is correct in API2 and seats are available
-        selected_flight = api2_response.json().get('selected_flight')
-        if selected_flight and selected_flight['flightNumber'] == flight_number and num_seats <= selected_flight['availableSeats']:
-            # Payment successful
-            return jsonify({'message': 'Payment successful'}), 200
-        else:
-            return jsonify({'error': 'Incorrect flight number or insufficient seats for payment'}), 400
-    else:
-        return jsonify({'error': 'Failed to retrieve data from API2'}), api2_response.status_code
+    return jsonify(api2_response.json()), api2_response.status_code
 
 @app.route('/payment', methods=['POST'])
 def process_payment():
-    # Get the flight number and number of seats from the request body
-    flight_number = request.json.get('flight_number')
-    num_seats = request.json.get('num_seats', 0)  # Default to 0 if not provided
-
-    if not flight_number:
-        return jsonify({'error': 'Flight number is required for payment'}), 400
-
-    # Make a request to the /getAvailableFlights endpoint of API1
+    # Forward the payment request to API1 to get available flights details
     api1_response = requests.get(f'{API1_BASE_URL}/getAvailableFlights')
+    available_flights = api1_response.json().get('flights', [])
 
-    if api1_response.status_code == 200:
-        available_flights = api1_response.json()['flights']
+    flight_number = request.json.get('flight_number')
+    num_seats = request.json.get('num_seats', 0)
 
-        # Find the flight with the specified flight number in API1
-        # Make a request to the /getTotalAmount endpoint of API2
-        api2_response = requests.get(f'{API2_BASE_URL}/getTotalAmount', params=request.args)
+    if not flight_number or num_seats <= 0:
+        return jsonify({'error': 'Invalid input parameters'}), 400
 
-        if api2_response.status_code == 200:
-            # Check if the flight number is correct in API2 and seats are available
-            selected_flight = api2_response.json().get('selected_flight')
-            if selected_flight:
-                if selected_flight['flightNumber'] == flight_number and num_seats <= selected_flight['availableSeats']:
-                    # Introduce a condition for simulating payment failure for some other process
-                    if some_other_condition:
-                        # Payment failed due to other reasons (customize as needed)
-                        return jsonify({'error': 'Payment failed by network issues'}), 400
-                    else:
-                        # Payment successful
-                        return jsonify({'message': 'Payment successful'}), 200
-                else:
-                    # Payment failed due to incorrect flight number or insufficient seats
-                    return jsonify({'error': 'Incorrect flight number or insufficient seats for payment'}), 400
-            else:
-                # Payment failed because no flight data is available
-                return jsonify({'error': 'No flight data available for the given parameters'}), 400
-        else:
-            # Payment failed due to failure to retrieve data from API2
-            return jsonify({'error': 'Failed to retrieve data from API2'}), api2_response.status_code
+    # Find the selected flight in the available flights
+    selected_flight = next(
+        (flight for flight in available_flights if flight['flightNumber'] == flight_number),
+        None
+    )
+
+    if selected_flight and num_seats <= selected_flight['availableSeats']:
+        # Simulate a payment success message
+        return jsonify({'message': 'Payment successful'}), 200
     else:
-        return jsonify({'error': 'Failed to retrieve data from API1'}), api1_response.status_code
+        return jsonify({'error': 'Incorrect flight number or insufficient seats for payment'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5003, debug=True)
