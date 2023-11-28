@@ -5,8 +5,8 @@ import os
 app = Flask(__name__)
 
 # Define the base URLs for the existing APIs from environment variables
-API1_BASE_URL = os.environ.get('API1_BASE_URL', 'http://localhost:5000')
-API2_BASE_URL = os.environ.get('API2_BASE_URL', 'http://localhost:5001')
+API1_BASE_URL = os.environ.get('API1_BASE_URL')
+API2_BASE_URL = os.environ.get('API2_BASE_URL')
 
 @app.route('/getAvailableFlights', methods=['GET'])
 def get_available_flights():
