@@ -67,7 +67,7 @@ if api2_response.status_code == 200:
             # Introduce a condition for simulating payment failure for some other process
             if some_other_condition:
                 # Payment failed due to other reasons (customize as needed)
-                return jsonify({'error': 'Payment failed for other reasons'}), 400
+                return jsonify({'error': 'Payment failed by network issues'}), 400
             else:
                 # Payment successful
                 return jsonify({'message': 'Payment successful'}), 200
