@@ -8,6 +8,9 @@ app = Flask(__name__)
 API1_BASE_URL = os.environ.get('API1_BASE_URL')
 API2_BASE_URL = os.environ.get('API2_BASE_URL')
 
+print(API1_BASE_URL)
+print(API2_BASE_URL)
+
 @app.route('/getAvailableFlights', methods=['GET'])
 def get_available_flights():
     # Make a request to the /getAvailableFlights endpoint of API1
