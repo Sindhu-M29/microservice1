@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flightbooking-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flightbooking
+  template:
+    metadata:
+      labels:
+        app: flightbooking
+    spec:
+      containers:
+      - name: flightbooking
+        image: sindhuverticurl/microservice1-image:latest
+        ports:
+        - containerPort: 5003
+        env:
+        - name: API1_BASE_URL
+          value: "http://microservice2-service"  
+        - name: API2_BASE_URL
+          value: "http://microservice3-service" 
