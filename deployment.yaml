@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flightbooking.app
+  template:
+    metadata:
+      labels:
+        app: flightbooking.app
+    spec:
+      containers:
+        - name: microservice1
+          image: 267092042432.dkr.ecr.us-east-1.amazonaws.com/sindhu-ecr:microservice1
+      imagePullSecrets:
+        - name: ecr-credentials1
