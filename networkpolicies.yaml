@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-microservice1-to-microservice2-3
+spec:
+  podSelector:
+    matchLabels:
+      app: microservice1
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: microservice2
+    - podSelector:
+        matchLabels:
+          app: microservice3
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-microservice2-3-to-microservice1
+spec:
+  podSelector:
+    matchLabels:
+      app: microservice1
